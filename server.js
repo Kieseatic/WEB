@@ -21,7 +21,7 @@
 
 *
 
-* Published URL: ___________________________________________________________
+* Published URL: https://odd-rose-grasshopper-toga.cyclic.app/
 
 *
 
