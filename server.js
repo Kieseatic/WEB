@@ -135,16 +135,33 @@ app.post('/lego/addSet', ensureLogin, async (req, res) => {
   }
 });
 
-app.post('/lego/editSet', ensureLogin, async (req, res) => {
+// Route to render the editSet view
+app.get('/lego/editSet/:num', async (req, res) => {
   try {
-    const { set_num, ...setData } = req.body;
-    await legoData.editSet(set_num, setData); 
-    res.redirect('/lego/sets');
-  } catch (error) {
-    res.status(500).render('error', { message: 'An unexpected error occurred.' });
+    const setNum = req.params.num;
+    const [themeData, setData] = await Promise.all([
+      legoData.getAllThemes(), // Assuming this function is available in legoSets module
+      legoData.getSetByNum(setNum),
+    ]);
+    
+    res.render('editSet', { themes: themeData, set: setData });
+  } catch (err) {
+    res.status(404).render('404', { message: err });
   }
 });
 
+// Route to handle the form submission for editing a set
+app.post('/lego/editSet', async (req, res) => {
+  try {
+    const { set_num, ...setData } = req.body;
+    await legoData.editSet(set_num, setData); // Assuming this function is available in legoSets module
+    res.redirect('/lego/sets');
+  } catch (err) {
+    res.status(500).render('500', { message: `I'm sorry, but we have encountered the following error: ${err.errors[0].message}` });
+  }
+});
+
+// Add this route to your server.js file
 app.get('/lego/deleteSet/:num', async (req, res) => {
   try {
     const setNum = req.params.num;
@@ -154,6 +171,7 @@ app.get('/lego/deleteSet/:num', async (req, res) => {
     res.status(500).render('500', { message: `Error deleting set: ${err}` });
   }
 });
+
 
 app.get('/register', (req, res) => {
   res.render('register',{ successMessage: '', userName: '', errorMessage: ''}); 
